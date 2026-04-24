@@ -3,6 +3,8 @@ package exchange
 import (
 	"crypto/tls"
 	"net/http"
+
+	"github.com/liuzhe0223/vasign"
 )
 
 func BuildHTTPClient(options *Options) (*http.Client, error) {
@@ -31,6 +33,9 @@ func BuildHTTPClient(options *Options) (*http.Client, error) {
 			httpTransport.TLSClientConfig.NextProtos = []string{"http/1.1", "http/1.0"}
 			httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 		}
+	}
+	if options.VASigner != nil {
+		transp = vasign.NewTransport(options.VASigner, transp)
 	}
 	client.Transport = transp
 

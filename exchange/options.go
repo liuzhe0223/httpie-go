@@ -3,6 +3,8 @@ package exchange
 import (
 	"net/http"
 	"time"
+
+	"github.com/liuzhe0223/vasign"
 )
 
 type Options struct {
@@ -13,6 +15,7 @@ type Options struct {
 	ForceHTTP1      bool
 	CheckStatus     bool
 	Transport       http.RoundTripper
+	VASigner        *vasign.Signer
 }
 
 type AuthOptions struct {

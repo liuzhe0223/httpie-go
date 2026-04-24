@@ -53,6 +53,7 @@ func parse(args []string, terminalInfo terminalInfo) ([]string, Usage, *OptionSe
 	printFlag := "\000" // "\000" is a special value that indicates user did not specified --print
 	timeout := "30s"
 	var authFlag string
+	var vaSignConfigPath string
 	var prettyFlag string
 	var versionFlag bool
 	var licenseFlag bool
@@ -77,6 +78,7 @@ func parse(args []string, terminalInfo terminalInfo) ([]string, Usage, *OptionSe
 	flagSet.StringVarLong(&timeout, "timeout", 0, "timeout seconds that you allow the whole operation to take")
 	flagSet.BoolVarLong(&exchangeOptions.CheckStatus, "check-status", 0, "Also check the HTTP status code and exit with an error if the status indicates one")
 	flagSet.StringVarLong(&authFlag, "auth", 'a', "colon-separated username and password for authentication")
+	flagSet.StringVarLong(&vaSignConfigPath, "va-sign-config", 0, "YAML file with VA signing config (client_id, key_id, private_key)")
 	flagSet.StringVarLong(&prettyFlag, "pretty", 0, "controls output formatting (all, format, none)")
 	flagSet.BoolVarLong(&exchangeOptions.FollowRedirects, "follow", 'F', "follow 30x Location redirects")
 	flagSet.BoolVarLong(&versionFlag, "version", 0, "print version and exit")
@@ -155,6 +157,14 @@ func parse(args []string, terminalInfo terminalInfo) ([]string, Usage, *OptionSe
 		exchangeOptions.Auth.Enabled = true
 		exchangeOptions.Auth.UserName = username
 		exchangeOptions.Auth.Password = *password
+	}
+
+	if vaSignConfigPath != "" {
+		signer, err := exchange.LoadVASigner(vaSignConfigPath)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		exchangeOptions.VASigner = signer
 	}
 
 	optionSet := &OptionSet{

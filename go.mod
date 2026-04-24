@@ -1,16 +1,24 @@
 module github.com/nojima/httpie-go
 
-go 1.13
+go 1.26.2
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20200131002437-cf55d5288a48
+	github.com/liuzhe0223/vasign v0.0.0-20260413113753-650f7cb57ba7
 	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381
 	github.com/mattn/go-isatty v0.0.12
 	github.com/mtibben/androiddnsfix v0.0.0-20200907095054-ff0280446354
-	github.com/onsi/ginkgo v1.12.0 // indirect
-	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/pborman/getopt v0.0.0-20190409184431-ee0cd42419d3
 	github.com/pkg/errors v0.9.1
 	github.com/vbauerster/mpb/v5 v5.0.2
 	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073
+	gopkg.in/yaml.v2 v2.2.4
+)
+
+require (
+	github.com/VividCortex/ewma v1.1.1 // indirect
+	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
+	github.com/onsi/ginkgo v1.12.0 // indirect
+	github.com/onsi/gomega v1.9.0 // indirect
+	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 )

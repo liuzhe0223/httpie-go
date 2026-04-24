@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -76,9 +77,14 @@ func Exchange(in *input.Input, exchangeOptions *exchange.Options, outputOptions 
 
 	// Print HTTP request
 	if outputOptions.PrintRequestHeader || outputOptions.PrintRequestBody {
+		previewRequest, err := buildPreviewRequest(request, exchangeOptions)
+		if err != nil {
+			return -1, err
+		}
+
 		// `request` does not contain HTTP headers that HttpClient.Do adds.
 		// We can get these headers by DumpRequestOut and ReadRequest.
-		dump, err := httputil.DumpRequestOut(request, true)
+		dump, err := httputil.DumpRequestOut(previewRequest, true)
 		if err != nil {
 			return -1, err // should not happen
 		}
@@ -89,10 +95,10 @@ func Exchange(in *input.Input, exchangeOptions *exchange.Options, outputOptions 
 		defer r.Body.Close()
 
 		// ReadRequest deletes Host header. We must restore it.
-		if request.Host != "" {
-			r.Header.Set("Host", request.Host)
+		if previewRequest.Host != "" {
+			r.Header.Set("Host", previewRequest.Host)
 		} else {
-			r.Header.Set("Host", request.URL.Host)
+			r.Header.Set("Host", previewRequest.URL.Host)
 		}
 
 		if outputOptions.PrintRequestHeader {
@@ -153,4 +159,31 @@ func Exchange(in *input.Input, exchangeOptions *exchange.Options, outputOptions 
 	}
 
 	return resp.StatusCode, nil
+}
+
+func buildPreviewRequest(request *http.Request, options *exchange.Options) (*http.Request, error) {
+	preview := request.Clone(request.Context())
+	if request.GetBody != nil {
+		body, err := request.GetBody()
+		if err != nil {
+			return nil, err
+		}
+		preview.Body = body
+	}
+	if options.VASigner == nil {
+		return preview, nil
+	}
+	if err := options.VASigner.Sign(preview); err != nil {
+		return nil, err
+	}
+	if request.GetBody != nil {
+		body, err := request.GetBody()
+		if err != nil {
+			return nil, err
+		}
+		request.Body = body
+	} else {
+		request.Body = io.NopCloser(bytes.NewReader(nil))
+	}
+	return preview, nil
 }
